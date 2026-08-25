@@ -9,9 +9,41 @@ data class EpaperRegion(val x: Int, val y: Int, val width: Int, val height: Int)
     }
 }
 sealed interface EpaperContent {
+    data class Launcher(val title: String, val entries: List<String>, val selectedIndex: Int) : EpaperContent {
+        init {
+            require(entries.isNotEmpty()) { "Launcher entries cannot be empty" }
+            require(selectedIndex in entries.indices) { "Selected launcher entry must exist" }
+        }
+    }
     data class Player(val title: String, val artist: String, val isPlaying: Boolean) : EpaperContent
+    data class Playback(
+        val title: String,
+        val artist: String,
+        val isPlaying: Boolean,
+        val primaryAction: String,
+        val secondaryAction: String,
+    ) : EpaperContent
+    data class Sleep(
+        val title: String,
+        val artist: String,
+        val isPlaying: Boolean,
+        val clock: String,
+        val batteryPercentage: Int,
+        val layout: SleepLayout = SleepLayout.ARTWORK,
+    ) : EpaperContent {
+        init {
+            require(batteryPercentage in 0..100) { "Battery percentage must be between 0 and 100" }
+        }
+    }
     data class Library(val title: String, val entries: List<String>, val selectedIndex: Int) : EpaperContent
-    data class Keyboard(val query: String) : EpaperContent
+    data class Keyboard(val query: String, val symbols: Boolean = false) : EpaperContent
+    data class Navigation(val title: String, val actions: List<String>) : EpaperContent
+    data class QuickControl(val volume: Int, val output: String) : EpaperContent {
+        init {
+            require(volume in 0..100) { "Volume must be between 0 and 100" }
+        }
+    }
+    data class Settings(val title: String, val actions: List<String>) : EpaperContent
     data class Volume(val level: Int) : EpaperContent {
         init {
             require(level in 0..100) { "Volume must be between 0 and 100" }
@@ -19,6 +51,8 @@ sealed interface EpaperContent {
     }
     data object Empty : EpaperContent
 }
+
+enum class SleepLayout { ARTWORK, MINIMAL, AUDIOPHILE, CLOCK }
 data class EpaperState(
     val content: EpaperContent = EpaperContent.Empty,
     val awake: Boolean = true,

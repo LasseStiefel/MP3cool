@@ -15,7 +15,7 @@ import javax.inject.Singleton
 
 @Singleton
 class MockEpaperManager @Inject constructor(
-    private val timing: EpaperMockTiming = EpaperMockTiming(),
+    private val timing: EpaperMockTiming,
 ) : EpaperManager {
     private val mutableState = MutableStateFlow(EpaperState())
     override val state = mutableState.asStateFlow()
